@@ -1,0 +1,197 @@
+/********************<---Applied Query--->*********************************/
+
+
+/*1. It returns the room number and total empty seat in this room number. By this a house tutor can easily find where seat is empty.*/
+
+
+select room_number,total_seat-present_allocated empty_seat
+from (
+      select room_number,count(id) present_allocated
+      from student
+      where room_number in (select room_number from room)
+      group by room_number
+      order by room_number asc
+    )
+   natural join
+    (
+     select room_number,case 
+     when type='Single' then '1'
+     when type='Double' then '2'
+     when type='Multiple' then '8'
+     end total_seat
+     from room
+     order by room_number asc
+    )
+order by empty_seat desc;
+
+
+
+/*2. By this we can know the total number of students of each home town in the hall. */
+
+
+select home_town,count(id) student_number
+from student
+where home_town in ( 
+    select home_town from student 
+)
+group by home_town
+order by home_town asc;
+
+
+/*3. By this we can know the total number of students of each department in the hall.. */
+
+
+select dept_name,count(id) student_number
+from student
+where dept_name in ( 
+    select dept_name from student 
+)
+group by dept_name
+order by dept_name asc;
+
+
+
+/*4.We can know In which departments students is max in this hall. */
+
+
+select dept_name,student_number
+from (
+   select dept_name,count(id) student_number
+   from student
+   where dept_name in ( 
+           select dept_name from student 
+         )
+   group by dept_name
+   order by dept_name asc
+ ) 
+where student_number = (
+           Select max(student_number) 
+            from (
+                 select dept_name,count(id) student_number
+                 from student
+                 where dept_name in
+                      ( 
+                        select dept_name from student 
+                       )
+                 group by dept_name
+                 order by dept_name asc
+                ) 
+)
+
+
+/*5. We can know In which home towns students is max in this hall.. */
+
+
+select home_town,student_number
+from (
+   select home_town,count(id) student_number
+   from student
+   where home_town in ( 
+           select home_town from student 
+         )
+   group by home_town
+   order by home_town asc
+ ) 
+where student_number = (
+           Select max(student_number) 
+            from (
+                 select home_town,count(id) student_number
+                 from student
+                 where home_town in
+                      ( 
+                        select home_town from student 
+                       )
+                 group by home_town
+                 order by home_town asc
+                ) 
+)
+
+
+
+/*6. Which students stay in the single room. */
+
+
+select *
+from student
+where room_number in( select room_number from room where type = 'Single')
+
+
+
+/*7. How many canteen has in each building. */
+
+select building_name,count(name) total_canteen 
+from canteen 
+where building_name in
+(
+select building_name from building
+)
+group by building_name
+
+
+
+
+/*8. Every buildings canteen details. */
+
+
+select *
+from canteen 
+where building_name in (select building_name from building)
+
+
+
+/*9.Determine the building name which has no tv room. */
+
+
+select building_name
+from building 
+where tv_room='No';
+
+/*10.Search If a departments house tutor exits or not. */
+
+select *
+from teacher
+where dept_name='Bangla';
+
+/*11.Can easily search if a building has any spot room or not. */
+
+select *
+from building
+where spot_room not like 'No';
+
+/*12.we can know any mess monthly fee. */
+
+select monthly_fee
+from mess
+where name='Tripti Amish Mess';
+
+
+/*13.we can know the building name of a teacher by id. */
+
+select building_name
+from teacher
+where id=10101;
+
+
+/*14.we can know a computer lab open time and close time  by computer lab name. */
+
+select open_time,close_time
+from computer_lab
+where name='Dhirendra Nath Datta E-Lab';
+
+
+/*15.we can search a building if there exits a canteen then we can know if there exits tv_room and spot_room. */
+
+select tv_room,spot_room
+from building
+where building_name =(
+     select building_name
+     from canteen
+     where name='Sankar Canteen');
+
+
+/*16.we can know all the information about the director by knowing directortype. */
+
+select *
+from director
+where directorType='C_lab_O';
+
